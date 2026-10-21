@@ -1,0 +1,27 @@
+.tb-option-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.tb-option-pills__option {
+  display: flex;
+  align-items: center;
+  height: var(--size-target);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+}
+
+.tb-option-pills__chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  color: var(--muted-foreground);
+}
+.tb-option-pills__chip--on { background: var(--secondary); color: var(--foreground); }

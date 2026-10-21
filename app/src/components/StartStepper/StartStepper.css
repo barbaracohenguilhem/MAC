@@ -1,0 +1,18 @@
+.tb-start-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tb-start-stepper__readout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+/* the plus button's icon lines up with the screen edge, not its 44px target */
+.tb-start-stepper__buttons {
+  display: flex;
+  gap: var(--space-1);
+  margin-right: calc(-1 * var(--space-3));
+}

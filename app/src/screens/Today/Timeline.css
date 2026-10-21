@@ -1,0 +1,125 @@
+.tb-timeline {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-right: var(--space-6);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tb-timeline__rail {
+  position: relative;
+  isolation: isolate;
+  touch-action: pinch-zoom;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: crosshair;
+}
+
+/* Hours: the label right-aligned in a 32px column, the line from 60px to the edge */
+.tb-timeline__hour { position: absolute; left: 20px; width: 32px; text-align: right; }
+.tb-timeline__line { position: absolute; left: 60px; right: 0; border-top: 1px solid var(--border); }
+
+/* Now: drawn in the foreground over everything, never in the way of a press */
+.tb-timeline__now-label,
+.tb-timeline__now-line,
+.tb-timeline__free {
+  position: absolute;
+  z-index: 250;
+  pointer-events: none;
+}
+.tb-timeline__now-label { left: 20px; width: 32px; text-align: right; font-weight: 600; color: var(--foreground); }
+.tb-timeline__now-line { left: 60px; right: 0; height: 1px; background: var(--foreground); }
+.tb-timeline__free { right: 0; }
+.tb-timeline__aside { position: absolute; left: 60px; white-space: nowrap; pointer-events: none; }
+
+/* Blocks */
+.tb-block {
+  position: absolute;
+  left: 60px;
+  right: 0;
+  display: flex;
+  gap: 2px;
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  box-shadow: var(--tb-block-shadow, none);
+  cursor: grab;
+}
+.tb-block:focus-visible { box-shadow: var(--ring-selected); }
+.tb-block--row { flex-direction: row; align-items: center; justify-content: space-between; padding: 0 var(--space-3); }
+.tb-block--tall { flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 9px var(--space-3); }
+.tb-block--micro { padding: 0 10px; }
+/* the ghost continues the block with no seam, so a ghosted block squares its bottom corners */
+.tb-block--ghosted { border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+
+.tb-block__title {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 16px;
+  letter-spacing: -0.004em;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tb-block--row .tb-block__title { flex: 1 1 auto; }
+.tb-block--tall .tb-block__title { flex: 0 0 auto; }
+.tb-block--micro .tb-block__title { font-size: 11px; line-height: 12px; letter-spacing: 0; }
+
+.tb-block__caption { flex-shrink: 0; white-space: nowrap; }
+.tb-block__left { flex-shrink: 0; white-space: nowrap; color: var(--foreground); }
+.tb-block__left--fill { flex: 1 1 auto; display: flex; align-items: flex-end; }
+
+.tb-block__ghost {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  border: 1px dashed var(--paper-rule);
+  border-top: 0;
+  border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  pointer-events: none;
+}
+
+.tb-block__handle { position: absolute; left: 0; right: 0; bottom: -10px; height: 20px; cursor: ns-resize; }
+.tb-block__handle-dot {
+  position: absolute;
+  left: 50%;
+  top: 5px;
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  border-radius: var(--radius-full);
+  background: var(--foreground);
+  box-shadow: 0 0 0 2px var(--background);
+}
+
+/* The selected block's pill: its six colours, a rule, Delete */
+.tb-action-pill {
+  position: absolute;
+  left: var(--space-4);
+  right: var(--space-4);
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  height: 56px;
+  padding: 0 6px;
+  border-radius: 28px;
+  background: var(--background);
+  box-shadow: var(--shadow-md);
+}
+/* the targets sit edge to edge here, leaving Delete room */
+.tb-action-pill .tb-color-swatches { gap: 0; }
+.tb-action-pill--bottom { bottom: var(--space-10); }
+/* under the header, when the selected block reaches down into the pill's usual place */
+.tb-action-pill--top { top: 144px; }
+.tb-action-pill__divider { flex-shrink: 0; width: 1px; height: 24px; margin: 0 var(--space-2); background: var(--border); }
+.tb-action-pill__delete {
+  flex-grow: 1;
+  height: var(--size-target);
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+}

@@ -1,0 +1,37 @@
+.tb-focus__count {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+}
+
+/* SceneSnap's display type: Satoshi Regular, tight tracking */
+.tb-focus__minutes {
+  font-size: 160px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.05em;
+}
+
+.tb-focus__foot {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: 0 var(--space-6) var(--space-10);
+}
+
+.tb-focus__track {
+  position: relative;
+  height: 6px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--muted);
+}
+.tb-focus__fill { position: absolute; top: 0; right: 0; height: 100%; border-radius: 3px; background: var(--foreground); }
+
+.tb-focus__next-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); }
+.tb-focus__next { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
+.tb-focus__next-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tb-focus__end { margin-left: auto; }

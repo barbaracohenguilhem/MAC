@@ -1,0 +1,35 @@
+.tb-app {
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+}
+
+/* One phone screen: everything lays out inside it, and the action pill floats over it */
+.tb-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  background: var(--background);
+}
+
+.tb-screen__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding: var(--space-6) var(--space-6) 0;
+}
+
+.tb-screen__note { margin: 0; }
+
+.tb-screen__footer { padding: var(--space-8) var(--space-6) var(--space-10); }
+
+/* On a desktop, show the screen at the phone size it was drawn at */
+@media (min-width: 600px) and (min-height: 900px) {
+  .tb-app { align-items: center; background: var(--muted); }
+  .tb-screen { width: 390px; height: 844px; border-radius: 40px; box-shadow: var(--ring-border); }
+}

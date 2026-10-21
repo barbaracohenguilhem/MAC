@@ -1,0 +1,27 @@
+.tb-color-swatches {
+  display: flex;
+  gap: var(--space-1);
+}
+.tb-color-swatches--inset { margin-left: calc(-1 * var(--space-2)); }
+
+.tb-color-swatches__swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--size-target);
+  height: var(--size-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  cursor: pointer;
+}
+
+.tb-color-swatches__dot {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--ring-hairline);
+}
+.tb-color-swatches__dot--on { box-shadow: var(--ring-selected); }
