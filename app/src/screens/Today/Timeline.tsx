@@ -136,7 +136,9 @@ export function Timeline({ blocks, now }: TimelineProps) {
     if (e.button !== 0) return
     e.stopPropagation()
     e.preventDefault()
-    begin({ mode, y0: e.clientY, start0: b.start, dur0: b.dur, hourPx, base: b, fresh: false, moved: false, preview: null })
+    // a block that ended early shows its handle at the real end, so a resize grows from there, not from the plan
+    const dur0 = mode === 'resize' ? realEnd(b) - b.start : b.dur
+    begin({ mode, y0: e.clientY, start0: b.start, dur0, hourPx, base: b, fresh: false, moved: false, preview: null })
   }
 
   const pressRail = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -165,12 +167,16 @@ export function Timeline({ blocks, now }: TimelineProps) {
       // the keyboard's drag: arrows move the block a quarter hour; with Shift they change its length
       e.preventDefault()
       const next = nudge(b, e.shiftKey ? 'resize' : 'move', e.key === 'ArrowUp' ? -STEP : STEP)
-      if (next.start !== b.start || next.dur !== b.dur) dispatch({ type: 'updateBlock', block: next })
+      if (next.start !== b.start || next.dur !== b.dur || next.endedAt !== b.endedAt) {
+        dispatch({ type: 'updateBlock', block: next })
+      }
     }
   }
 
   const openFocus = (e: React.MouseEvent) => {
-    if (lastMoved.current) e.preventDefault()
+    // only the click a drag leaves behind is swallowed; a keyboard activation (detail 0) always opens Focus
+    if (lastMoved.current && e.detail > 0) e.preventDefault()
+    lastMoved.current = false
   }
 
   const preview = drag?.preview ?? null
@@ -268,7 +274,8 @@ export function Timeline({ blocks, now }: TimelineProps) {
                 <span className="tb-block__title">{b.title}</span>
                 {/* no times inside blocks at rest: the range reads out only while resizing, as gesture feedback */}
                 {!tall && !micro && resizing && <span className="tb-block__caption type-caption">{range}</span>}
-                {!tall && !micro && isCurrent && (
+                {/* a block in progress always offers Focus, at the micro size when it is only a sliver */}
+                {!tall && isCurrent && (
                   <a href={paths.focus(b.id)} className="tb-block__left type-body-sm" onClick={openFocus}>
                     {left}
                   </a>

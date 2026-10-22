@@ -3,7 +3,7 @@ import { Button, ColorSwatches, Field, OptionPills, ScreenHeader, StartStepper, 
 import { BUCKETS } from '../../lib/buckets'
 import { useNow } from '../../lib/now'
 import { navigate, paths } from '../../lib/router'
-import { DURATIONS, fallbackStart, firstFreeStart } from '../../lib/time'
+import { DURATIONS, fallbackStart, firstFreeStart, overlapping } from '../../lib/time'
 import { useStore } from '../../state/store'
 import type { Bucket } from '../../state/types'
 import { uid } from '../../utils/uid'
@@ -26,6 +26,8 @@ export function NewBlock() {
     start: free ?? fallbackStart(now, 60),
   }))
   const title = draft.title.trim()
+  // the rail allows overlaps, but a form should never place one silently
+  const clash = overlapping(state.blocks, draft.start, draft.dur)
   const saveLabel = BUCKETS.find((b) => b.key === when)?.save
 
   const submit = (e: React.FormEvent) => {
@@ -54,7 +56,12 @@ export function NewBlock() {
         />
         <OptionPills label="When" options={WHEN_OPTIONS} value={when} onChange={setWhen} />
         {when === 'today' ? (
-          <StartStepper start={draft.start} dur={draft.dur} onChange={setStart} />
+          <StartStepper
+            start={draft.start}
+            dur={draft.dur}
+            onChange={setStart}
+            note={clash && `Overlaps ${clash.title}`}
+          />
         ) : (
           <p className="tb-screen__note type-body-sm text-muted">It waits in the Inbox until you give it a time.</p>
         )}

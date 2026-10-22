@@ -72,6 +72,7 @@
 .tb-block__caption { flex-shrink: 0; white-space: nowrap; }
 .tb-block__left { flex-shrink: 0; white-space: nowrap; color: var(--foreground); }
 .tb-block__left--fill { flex: 1 1 auto; display: flex; align-items: flex-end; }
+.tb-block--micro .tb-block__left { font-size: 11px; line-height: 12px; }
 
 .tb-block__ghost {
   position: absolute;

@@ -3,7 +3,7 @@ import { Button, ColorSwatches, Field, OptionPills, ScreenHeader, StartStepper, 
 import { bucketName } from '../../lib/buckets'
 import { useNow } from '../../lib/now'
 import { navigate, paths } from '../../lib/router'
-import { DURATIONS, fallbackStart, firstFreeStart } from '../../lib/time'
+import { DURATIONS, fallbackStart, firstFreeStart, overlapping } from '../../lib/time'
 import { useStore } from '../../state/store'
 import type { InboxItem } from '../../state/types'
 import { uid } from '../../utils/uid'
@@ -33,6 +33,8 @@ function ScheduleForm({ item }: { item: InboxItem }) {
     start: firstFreeStart(state.blocks, now, item.minutes) ?? fallbackStart(now, item.minutes),
   }))
   const title = draft.title.trim()
+  // the rail allows overlaps, but a form should never place one silently
+  const clash = overlapping(state.blocks, draft.start, draft.dur)
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,7 +52,12 @@ function ScheduleForm({ item }: { item: InboxItem }) {
       <ScreenHeader title="Give it a time" subtitle={`From ${bucketName(item.bucket)}`} closeHref={paths.inbox} />
       <div className="tb-screen__body">
         <TextField id="block-title" label="Title" value={draft.title} onChange={setTitle} placeholder="What will you do?" />
-        <StartStepper start={draft.start} dur={draft.dur} onChange={setStart} />
+        <StartStepper
+          start={draft.start}
+          dur={draft.dur}
+          onChange={setStart}
+          note={clash && `Overlaps ${clash.title}`}
+        />
         <OptionPills label="Minutes" options={MINUTE_OPTIONS} value={draft.dur} onChange={setDur} />
         <Field label="Color">
           <ColorSwatches inset value={draft.color} onChange={setColor} />

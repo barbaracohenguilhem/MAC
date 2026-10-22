@@ -60,9 +60,10 @@ describe('nudge (the keyboard)', () => {
     expect(nudge({ ...run, start: at(18, 0) }, 'move', 15).start).toBe(at(18, 0))
   })
 
-  it('changes the length, never below a quarter hour, and re-plans the block', () => {
-    expect(nudge(run, 'resize', 15)).toEqual({ id: 'run', title: 'Morning run', start: at(7, 30), dur: 75, color: 'green' })
-    expect(nudge({ ...run, dur: 15 }, 'resize', -15).dur).toBe(15)
+  it('changes the length from the visible end, never below a quarter hour, and re-plans the block', () => {
+    // the run really ended at 8:15, so a quarter hour more ends it at 8:30
+    expect(nudge(run, 'resize', 15)).toEqual({ id: 'run', title: 'Morning run', start: at(7, 30), dur: 60, color: 'green' })
+    expect(nudge({ ...run, dur: 15, endedAt: undefined }, 'resize', -15).dur).toBe(15)
   })
 })
 
@@ -70,6 +71,13 @@ describe('resizing', () => {
   it('re-plans the block, so its early end no longer applies', () => {
     const d = step(press({ mode: 'resize', start0: run.start, dur0: run.dur, base: run }), 300 + 4 * QUARTER, newId)
     expect(d.preview).toEqual({ id: 'run', title: 'Morning run', start: at(7, 30), dur: 120, color: 'green' })
+  })
+
+  it('grows an early-ended block from its real end when the press starts there', () => {
+    // Timeline starts a resize at the handle, which sits at 8:15 for the run (45 minutes in)
+    const d = step(press({ mode: 'resize', start0: run.start, dur0: 45, base: run }), 300 + QUARTER, newId)
+    expect(d.preview).toMatchObject({ start: at(7, 30), dur: 60 })
+    expect(d.preview?.endedAt).toBeUndefined()
   })
 
   it('never goes below a quarter hour', () => {

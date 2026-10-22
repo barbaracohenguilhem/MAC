@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { sampleDay } from '../state/sampleDay'
-import { currentBlock, endedEarly, fallbackStart, firstFreeStart, fmt, nextBlock, realEnd } from './time'
+import { currentBlock, endedEarly, fallbackStart, firstFreeStart, fmt, nextBlock, overlapping, realEnd } from './time'
 
 const at = (h: number, m: number) => h * 60 + m
 const { blocks } = sampleDay('2026-10-15')
@@ -58,6 +58,15 @@ describe('firstFreeStart', () => {
   it('has no slot when the rest of the day is taken, rather than overlapping the last block', () => {
     const evening = [{ id: 'e', title: 'Evening', start: at(17, 0), dur: 120, color: 'grey' as const }]
     expect(firstFreeStart(evening, at(16, 30), 60)).toBeNull()
+  })
+})
+
+describe('overlapping', () => {
+  it('names the block a stretch runs into, by real ends', () => {
+    expect(overlapping(blocks, at(10, 30), 60)?.title).toBe('Deep work · proposal draft')
+    expect(overlapping(blocks, at(11, 30), 60)).toBeUndefined()
+    // the run really ended at 8:15, so 8:15–8:45 is free
+    expect(overlapping(blocks, at(8, 15), 30)).toBeUndefined()
   })
 })
 

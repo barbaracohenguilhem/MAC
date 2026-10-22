@@ -1,4 +1,4 @@
-import { DAY_END, DAY_START, STEP, clamp, pxToMin, snap } from '../../lib/time'
+import { DAY_END, DAY_START, STEP, clamp, pxToMin, realEnd, snap } from '../../lib/time'
 import type { Block } from '../../state/types'
 
 /** One press on the rail: drawing a new block, moving a block, or dragging its bottom edge. */
@@ -29,8 +29,8 @@ export function nudge(b: Block, mode: 'move' | 'resize', delta: number): Block {
     if (b.endedAt !== undefined) moved.endedAt = b.endedAt + (start - b.start)
     return moved
   }
-  const dur = clamp(b.dur + delta, STEP, DAY_END - b.start)
-  // a new length re-plans the block, so a recorded early end no longer applies
+  // from the visible end, as the handle does; a new length re-plans the block, so a recorded early end no longer applies
+  const dur = clamp(realEnd(b) - b.start + delta, STEP, DAY_END - b.start)
   const { endedAt: _replanned, ...rest } = b
   return { ...rest, dur }
 }

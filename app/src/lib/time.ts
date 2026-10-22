@@ -46,6 +46,11 @@ export function nextBlock(blocks: Block[], now: number): Block | undefined {
   return blocks.filter((b) => b.start > now).sort((a, b) => a.start - b.start)[0]
 }
 
+/** The first block that a stretch from `start` lasting `dur` minutes would run into, judged by real ends. */
+export function overlapping(blocks: Block[], start: number, dur: number): Block | undefined {
+  return blocks.find((b) => b.start < start + dur && start < realEnd(b))
+}
+
 /**
  * The first quarter hour from now where a block of `dur` minutes fits between the others and ends by 19:00
  * (at 10:24 on the sample day, an hour fits at 11:30), or null when no such quarter hour is left today.
@@ -54,7 +59,7 @@ export function firstFreeStart(blocks: Block[], now: number, dur: number): numbe
   const latest = DAY_END - dur
   let s = Math.max(DAY_START, Math.ceil(now / STEP) * STEP)
   while (s <= latest) {
-    const hit = blocks.find((b) => b.start < s + dur && s < realEnd(b))
+    const hit = overlapping(blocks, s, dur)
     if (!hit) return s
     s = Math.ceil(realEnd(hit) / STEP) * STEP
   }

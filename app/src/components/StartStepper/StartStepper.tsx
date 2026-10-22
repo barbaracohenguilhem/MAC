@@ -8,10 +8,12 @@ export interface StartStepperProps {
   /** The block's length, which sets its end and the latest start that still ends by 19:00. */
   dur: number
   onChange: (start: number) => void
+  /** A short warning read after the end time, such as the block this one would overlap. */
+  note?: string
 }
 
 /** The start time read out large, with its end under it, and minus/plus buttons that move it by a quarter hour within 7:00–19:00. */
-export function StartStepper({ start, dur, onChange }: StartStepperProps) {
+export function StartStepper({ start, dur, onChange, note }: StartStepperProps) {
   const latest = DAY_END - dur
   const atStart = start <= DAY_START
   const atEnd = start >= latest
@@ -24,6 +26,7 @@ export function StartStepper({ start, dur, onChange }: StartStepperProps) {
         </span>
         <span aria-live="polite" className="type-caption text-muted">
           Ends {fmt(start + dur)}
+          {note && ` · ${note}`}
         </span>
       </div>
       <div className="tb-start-stepper__buttons">
