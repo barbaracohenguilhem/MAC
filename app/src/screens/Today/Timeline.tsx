@@ -97,22 +97,26 @@ export function Timeline({ blocks, now }: TimelineProps) {
   const dragging = drag !== null
   React.useLayoutEffect(() => {
     if (!dragging) return
+    // a second finger on the screen neither steers nor ends the press
+    const own = (e: PointerEvent) => dragRef.current !== null && e.pointerId === dragRef.current.pointerId
     const move = (e: PointerEvent) => {
       const d = dragRef.current
-      if (!d) return
+      if (!d || !own(e)) return
       const next = step(d, e.clientY, uid)
       if (next === d) return
       dragRef.current = next
       setDrag(next)
     }
-    const up = () => {
+    const up = (e: PointerEvent) => {
       const d = dragRef.current
+      if (!d || !own(e)) return
       dragRef.current = null
       setDrag(null)
-      if (d) finish(d)
+      finish(d)
     }
-    // the browser took the touch over (to scroll the rail): drop the press without changing anything
-    const cancel = () => {
+    // the browser took the touch over (to scroll the rail or pinch): drop the press without changing anything
+    const cancel = (e: PointerEvent) => {
+      if (!own(e)) return
       dragRef.current = null
       setDrag(null)
     }
@@ -133,16 +137,28 @@ export function Timeline({ blocks, now }: TimelineProps) {
   }
 
   const pressBlock = (e: React.PointerEvent, b: Block, mode: 'move' | 'resize') => {
-    if (e.button !== 0) return
     e.stopPropagation()
+    // one press at a time: another finger landing mid-drag starts nothing
+    if (e.button !== 0 || dragRef.current) return
     e.preventDefault()
     // a block that ended early shows its handle at the real end, so a resize grows from there, not from the plan
     const dur0 = mode === 'resize' ? realEnd(b) - b.start : b.dur
-    begin({ mode, y0: e.clientY, start0: b.start, dur0, hourPx, base: b, fresh: false, moved: false, preview: null })
+    begin({
+      mode,
+      pointerId: e.pointerId,
+      y0: e.clientY,
+      start0: b.start,
+      dur0,
+      hourPx,
+      base: b,
+      fresh: false,
+      moved: false,
+      preview: null,
+    })
   }
 
   const pressRail = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 || !railRef.current) return
+    if (e.button !== 0 || !railRef.current || dragRef.current) return
     e.preventDefault()
     // a press on empty time while a block is selected only clears the selection
     if (selectedId !== null) {
@@ -153,7 +169,18 @@ export function Timeline({ blocks, now }: TimelineProps) {
     const slot = Math.floor(pxToMin(e.clientY - top - RAIL_TOP, hourPx) / STEP) * STEP
     const start = clamp(DAY_START + slot, DAY_START, DAY_END - STEP)
     // nothing is added yet: the block appears on the first movement
-    begin({ mode: 'create', y0: e.clientY, start0: start, dur0: STEP, hourPx, base: null, fresh: false, moved: false, preview: null })
+    begin({
+      mode: 'create',
+      pointerId: e.pointerId,
+      y0: e.clientY,
+      start0: start,
+      dur0: STEP,
+      hourPx,
+      base: null,
+      fresh: false,
+      moved: false,
+      preview: null,
+    })
   }
 
   const keyBlock = (e: React.KeyboardEvent<HTMLDivElement>, b: Block) => {

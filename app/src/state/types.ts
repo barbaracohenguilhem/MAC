@@ -41,3 +41,5 @@ export type Action =
   | { type: 'addInboxItem'; item: InboxItem }
   | { type: 'scheduleInboxItem'; id: string; block: Block }
   | { type: 'rollover'; day: string }
+  /** Another tab saved: take its state as this tab's own. */
+  | { type: 'replace'; state: State }

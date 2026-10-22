@@ -4,6 +4,8 @@ import type { Block } from '../../state/types'
 /** One press on the rail: drawing a new block, moving a block, or dragging its bottom edge. */
 export interface Drag {
   mode: 'create' | 'move' | 'resize'
+  /** The finger or mouse that began the press; other contacts are ignored until it lifts. */
+  pointerId: number
   /** Where the press began, in client px. */
   y0: number
   start0: number

@@ -45,3 +45,17 @@ describe('rollover', () => {
     expect(reducer(day, { type: 'rollover', day: day.day })).toBe(day)
   })
 })
+
+describe('replace', () => {
+  it("takes on another tab's saved state", () => {
+    const other = reducer(day, { type: 'removeBlock', id: deepWork.id })
+    expect(reducer(day, { type: 'replace', state: other })).toBe(other)
+  })
+
+  it('carries a state saved on an earlier day forward to this tab’s day', () => {
+    const today = reducer(day, { type: 'rollover', day: '2026-10-16' })
+    const next = reducer(today, { type: 'replace', state: day })
+    expect(next.day).toBe('2026-10-16')
+    expect(next.blocks).toEqual([])
+  })
+})

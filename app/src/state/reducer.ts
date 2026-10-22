@@ -35,5 +35,8 @@ export function reducer(state: State, action: Action): State {
         blocks: [],
         inbox: state.inbox.map((i) => (i.bucket === 'tomorrow' ? { ...i, bucket: 'today' } : i)),
       }
+    case 'replace':
+      // a tab still on an earlier day saved; carry its state forward to this tab's day (YYYY-MM-DD sorts as dates)
+      return action.state.day < state.day ? reducer(action.state, { type: 'rollover', day: state.day }) : action.state
   }
 }

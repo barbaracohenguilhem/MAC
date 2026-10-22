@@ -9,7 +9,7 @@ const newId = () => 'drawn'
 const run: Block = { id: 'run', title: 'Morning run', start: at(7, 30), dur: 60, endedAt: at(8, 15), color: 'green' }
 
 function press(over: Partial<Drag>): Drag {
-  return { mode: 'move', y0: 300, start0: 0, dur0: 0, hourPx: 56, base: null, fresh: false, moved: false, preview: null, ...over }
+  return { mode: 'move', pointerId: 1, y0: 300, start0: 0, dur0: 0, hourPx: 56, base: null, fresh: false, moved: false, preview: null, ...over }
 }
 
 describe('drawing', () => {
