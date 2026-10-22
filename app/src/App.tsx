@@ -13,7 +13,7 @@ function screenFor(route: Route) {
     case 'new':
       return <NewBlock />
     case 'focus':
-      return <Focus />
+      return <Focus key={route.id ?? ''} id={route.id} />
     case 'inbox':
       return <Inbox />
     case 'schedule':

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Block } from '../../state/types'
-import { step, type Drag } from './gesture'
+import { nudge, step, type Drag } from './gesture'
 
 const at = (h: number, m: number) => h * 60 + m
 // at full size an hour is 56px, so 14px is a quarter hour
@@ -47,6 +47,22 @@ describe('moving', () => {
 
   it('counts a wobble that lands on the same slot as a tap', () => {
     expect(step(move, 305, newId).moved).toBe(false)
+  })
+})
+
+describe('nudge (the keyboard)', () => {
+  it('moves a quarter hour and carries an early end along', () => {
+    expect(nudge(run, 'move', 15)).toMatchObject({ start: at(7, 45), endedAt: at(8, 30) })
+  })
+
+  it('stops at the edges of the day', () => {
+    expect(nudge(run, 'move', -15).start).toBe(at(7, 15))
+    expect(nudge({ ...run, start: at(18, 0) }, 'move', 15).start).toBe(at(18, 0))
+  })
+
+  it('changes the length, never below a quarter hour, and re-plans the block', () => {
+    expect(nudge(run, 'resize', 15)).toEqual({ id: 'run', title: 'Morning run', start: at(7, 30), dur: 75, color: 'green' })
+    expect(nudge({ ...run, dur: 15 }, 'resize', -15).dur).toBe(15)
   })
 })
 

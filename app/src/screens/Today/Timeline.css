@@ -15,6 +15,9 @@
   -webkit-user-select: none;
   cursor: crosshair;
 }
+/* when the day is taller than the screen, a touch swipe on empty time scrolls it; blocks still drag */
+.tb-timeline__rail--scrolls { touch-action: pan-y pinch-zoom; }
+.tb-timeline__rail--scrolls .tb-block { touch-action: none; }
 
 /* Hours: the label right-aligned in a 32px column, the line from 60px to the edge */
 .tb-timeline__hour { position: absolute; left: 20px; width: 32px; text-align: right; }
@@ -108,14 +111,15 @@
   background: var(--background);
   box-shadow: var(--shadow-md);
 }
-/* the targets sit edge to edge here, leaving Delete room */
-.tb-action-pill .tb-color-swatches { gap: 0; }
+/* the targets sit edge to edge here, leaving Delete room; on narrow phones they narrow (never below 32px) so Delete stays on screen */
+.tb-action-pill .tb-color-swatches { gap: 0; flex: 0 1 auto; min-width: 0; }
+.tb-action-pill .tb-color-swatches__swatch { flex-shrink: 1; min-width: 32px; }
 .tb-action-pill--bottom { bottom: var(--space-10); }
 /* under the header, when the selected block reaches down into the pill's usual place */
 .tb-action-pill--top { top: 144px; }
 .tb-action-pill__divider { flex-shrink: 0; width: 1px; height: 24px; margin: 0 var(--space-2); background: var(--border); }
 .tb-action-pill__delete {
-  flex-grow: 1;
+  flex: 1 0 auto;
   height: var(--size-target);
   padding: 0 10px;
   border: 0;

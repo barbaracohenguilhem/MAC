@@ -17,6 +17,12 @@
   background: var(--background);
 }
 
+/* Screens whose content can outgrow a short or landscape phone, or one with the keyboard up, scroll as a whole */
+.tb-screen--scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .tb-screen__body {
   display: flex;
   flex-direction: column;

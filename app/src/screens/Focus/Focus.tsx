@@ -6,12 +6,17 @@ import { currentBlock, fmt, fmtRange, nextBlock, realEnd } from '../../lib/time'
 import { useStore } from '../../state/store'
 import './Focus.css'
 
-/** The block in progress, counting down. Ending it early keeps the rest of its plan as a ghost on Today. */
-export function Focus() {
+/**
+ * A block in progress, counting down: the one whose link was tapped (`id`), else the first in progress.
+ * Ending it early keeps the rest of its plan as a ghost on Today.
+ */
+export function Focus({ id }: { id?: string }) {
   const { state, dispatch } = useStore()
   const { minutes: now } = useNow()
-  const block = currentBlock(state.blocks, now)
-  // nothing in progress (it ended, or Focus was opened between blocks): back to the day
+  const block = id
+    ? state.blocks.find((b) => b.id === id && b.start <= now && now < realEnd(b))
+    : currentBlock(state.blocks, now)
+  // that block is not in progress (it ended, or Focus was opened between blocks): back to the day
   React.useEffect(() => {
     if (!block) navigate(paths.today, { replace: true })
   }, [block])
@@ -26,7 +31,7 @@ export function Focus() {
   }
 
   return (
-    <div className="tb-screen">
+    <div className="tb-screen tb-screen--scroll">
       <ScreenHeader title={block.title} subtitle={fmtRange(block.start, block.start + block.dur)} closeHref={paths.today} flush />
       <div className="tb-focus__count">
         <span className="tb-focus__minutes">{left}</span>

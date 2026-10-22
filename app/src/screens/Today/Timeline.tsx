@@ -23,7 +23,7 @@ import { useStore } from '../../state/store'
 import type { Block } from '../../state/types'
 import { cx } from '../../utils/cx'
 import { uid } from '../../utils/uid'
-import { step, type Drag } from './gesture'
+import { nudge, step, type Drag } from './gesture'
 import './Timeline.css'
 
 const HOURS = Array.from({ length: 13 }, (_, i) => 7 + i)
@@ -75,6 +75,9 @@ export function Timeline({ blocks, now }: TimelineProps) {
   // the whole day fits at full size on an 844px phone; a shorter screen shrinks the hour rather than hide the evening
   const hourPx = view.height ? clamp((view.height - RAIL_TOP - RAIL_FOOT) / 12, MIN_HOUR_PX, HOUR_PX) : HOUR_PX
   const y = (t: number) => railY(t, hourPx)
+  const railHeight = y(DAY_END) + RAIL_FOOT
+  // below the smallest hour the day no longer fits, and a swipe on empty time has to scroll it instead of drawing
+  const railScrolls = view.height > 0 && railHeight > view.height
 
   const finish = (d: Drag) => {
     lastMoved.current = d.moved
@@ -108,13 +111,18 @@ export function Timeline({ blocks, now }: TimelineProps) {
       setDrag(null)
       if (d) finish(d)
     }
+    // the browser took the touch over (to scroll the rail): drop the press without changing anything
+    const cancel = () => {
+      dragRef.current = null
+      setDrag(null)
+    }
     window.addEventListener('pointermove', move)
     window.addEventListener('pointerup', up)
-    window.addEventListener('pointercancel', up)
+    window.addEventListener('pointercancel', cancel)
     return () => {
       window.removeEventListener('pointermove', move)
       window.removeEventListener('pointerup', up)
-      window.removeEventListener('pointercancel', up)
+      window.removeEventListener('pointercancel', cancel)
     }
     // `finish` only reaches stable setters and refs, so the listeners can keep the first one
   }, [dragging])
@@ -153,6 +161,11 @@ export function Timeline({ blocks, now }: TimelineProps) {
       setSelectedId((cur) => (cur === b.id ? null : b.id))
     } else if (e.key === 'Escape') {
       setSelectedId(null)
+    } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+      // the keyboard's drag: arrows move the block a quarter hour; with Shift they change its length
+      e.preventDefault()
+      const next = nudge(b, e.shiftKey ? 'resize' : 'move', e.key === 'ArrowUp' ? -STEP : STEP)
+      if (next.start !== b.start || next.dur !== b.dur) dispatch({ type: 'updateBlock', block: next })
     }
   }
 
@@ -179,7 +192,15 @@ export function Timeline({ blocks, now }: TimelineProps) {
   return (
     <>
       <div ref={scrollRef} className="tb-timeline">
-        <div ref={railRef} className="tb-timeline__rail" style={{ height: y(DAY_END) + RAIL_FOOT }} onPointerDown={pressRail}>
+        <div
+          ref={railRef}
+          className={cx('tb-timeline__rail', railScrolls && 'tb-timeline__rail--scrolls')}
+          style={{ height: railHeight }}
+          onPointerDown={pressRail}
+        >
+          <span id="tb-block-keys" hidden>
+            Enter selects it. Arrow keys move it by 15 minutes; with Shift they change its length.
+          </span>
           {HOURS.map((h, i) => {
             const top = RAIL_TOP + i * hourPx
             // an hour's label gives way to the now label where they would overlap
@@ -230,6 +251,7 @@ export function Timeline({ blocks, now }: TimelineProps) {
                 tabIndex={0}
                 aria-label={`${b.title}, ${range}${status}`}
                 aria-pressed={isSelected}
+                aria-describedby="tb-block-keys"
                 className={cx('tb-block', tall ? 'tb-block--tall' : 'tb-block--row', micro && 'tb-block--micro', ghost && 'tb-block--ghosted')}
                 style={
                   {
@@ -247,13 +269,13 @@ export function Timeline({ blocks, now }: TimelineProps) {
                 {/* no times inside blocks at rest: the range reads out only while resizing, as gesture feedback */}
                 {!tall && !micro && resizing && <span className="tb-block__caption type-caption">{range}</span>}
                 {!tall && !micro && isCurrent && (
-                  <a href={paths.focus} className="tb-block__left type-body-sm" onClick={openFocus}>
+                  <a href={paths.focus(b.id)} className="tb-block__left type-body-sm" onClick={openFocus}>
                     {left}
                   </a>
                 )}
                 {tall && resizing && <span className="type-caption">{range}</span>}
                 {tall && isCurrent && (
-                  <a href={paths.focus} className="tb-block__left tb-block__left--fill type-body-sm" onClick={openFocus}>
+                  <a href={paths.focus(b.id)} className="tb-block__left tb-block__left--fill type-body-sm" onClick={openFocus}>
                     {left}
                   </a>
                 )}

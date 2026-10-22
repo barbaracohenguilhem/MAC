@@ -3,7 +3,7 @@ import { Button, ColorSwatches, Field, OptionPills, ScreenHeader, StartStepper, 
 import { bucketName } from '../../lib/buckets'
 import { useNow } from '../../lib/now'
 import { navigate, paths } from '../../lib/router'
-import { DURATIONS, firstFreeStart } from '../../lib/time'
+import { DURATIONS, fallbackStart, firstFreeStart } from '../../lib/time'
 import { useStore } from '../../state/store'
 import type { InboxItem } from '../../state/types'
 import { uid } from '../../utils/uid'
@@ -24,12 +24,13 @@ export function Schedule({ id }: { id: string }) {
 function ScheduleForm({ item }: { item: InboxItem }) {
   const { state, dispatch } = useStore()
   const { minutes: now } = useNow()
-  // the item keeps its length and colour; it lands at the first quarter hour after now where it fits
+  // the item keeps its length and colour; it lands at the first quarter hour after now where it fits,
+  // or, when today has no such gap left, at the next quarter hour for the stepper to move
   const { draft, setTitle, setStart, setDur, setColor } = useBlockDraft(() => ({
     title: item.title,
     dur: item.minutes,
     color: item.color,
-    start: firstFreeStart(state.blocks, now, item.minutes),
+    start: firstFreeStart(state.blocks, now, item.minutes) ?? fallbackStart(now, item.minutes),
   }))
   const title = draft.title.trim()
 
@@ -45,7 +46,7 @@ function ScheduleForm({ item }: { item: InboxItem }) {
   }
 
   return (
-    <form className="tb-screen" onSubmit={submit}>
+    <form className="tb-screen tb-screen--scroll" onSubmit={submit}>
       <ScreenHeader title="Give it a time" subtitle={`From ${bucketName(item.bucket)}`} closeHref={paths.inbox} />
       <div className="tb-screen__body">
         <TextField id="block-title" label="Title" value={draft.title} onChange={setTitle} placeholder="What will you do?" />

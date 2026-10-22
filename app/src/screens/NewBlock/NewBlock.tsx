@@ -3,7 +3,7 @@ import { Button, ColorSwatches, Field, OptionPills, ScreenHeader, StartStepper, 
 import { BUCKETS } from '../../lib/buckets'
 import { useNow } from '../../lib/now'
 import { navigate, paths } from '../../lib/router'
-import { DURATIONS, firstFreeStart } from '../../lib/time'
+import { DURATIONS, fallbackStart, firstFreeStart } from '../../lib/time'
 import { useStore } from '../../state/store'
 import type { Bucket } from '../../state/types'
 import { uid } from '../../utils/uid'
@@ -16,12 +16,14 @@ const MINUTE_OPTIONS = DURATIONS.map((m) => ({ value: m, label: String(m), ariaL
 export function NewBlock() {
   const { state, dispatch } = useStore()
   const { minutes: now } = useNow()
-  const [when, setWhen] = React.useState<Bucket>('today')
+  const [free] = React.useState(() => firstFreeStart(state.blocks, now, 60))
+  // with no free hour left on today's rail, the block is offered to tomorrow instead
+  const [when, setWhen] = React.useState<Bucket>(free === null ? 'tomorrow' : 'today')
   const { draft, setTitle, setStart, setDur, setColor } = useBlockDraft(() => ({
     title: '',
     dur: 60,
     color: 'grey',
-    start: firstFreeStart(state.blocks, now, 60),
+    start: free ?? fallbackStart(now, 60),
   }))
   const title = draft.title.trim()
   const saveLabel = BUCKETS.find((b) => b.key === when)?.save
@@ -39,7 +41,7 @@ export function NewBlock() {
   }
 
   return (
-    <form className="tb-screen" onSubmit={submit}>
+    <form className="tb-screen tb-screen--scroll" onSubmit={submit}>
       <ScreenHeader title="New block" closeHref={paths.today} focusTitle={false} />
       <div className="tb-screen__body">
         <TextField

@@ -3,7 +3,7 @@ import * as React from 'react'
 export type Route =
   | { name: 'today' }
   | { name: 'new' }
-  | { name: 'focus' }
+  | { name: 'focus'; id?: string }
   | { name: 'inbox' }
   | { name: 'schedule'; id: string }
 
@@ -11,9 +11,19 @@ export type Route =
 export const paths = {
   today: '#/',
   newBlock: '#/new',
-  focus: '#/focus',
+  /** One block's countdown; with no id, whichever block is in progress. */
+  focus: (id?: string) => (id ? `#/focus/${encodeURIComponent(id)}` : '#/focus'),
   inbox: '#/inbox',
   schedule: (id: string) => `#/inbox/${encodeURIComponent(id)}`,
+}
+
+/** A hash can come from anywhere (a pasted link, history), so a malformed escape is no id rather than a crash. */
+function decode(segment: string): string | null {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return null
+  }
 }
 
 export function parseRoute(hash: string): Route {
@@ -21,8 +31,13 @@ export function parseRoute(hash: string): Route {
   if (path === '/new') return { name: 'new' }
   if (path === '/focus') return { name: 'focus' }
   if (path === '/inbox') return { name: 'inbox' }
+  const block = /^\/focus\/(.+)$/.exec(path)
+  if (block) return { name: 'focus', id: decode(block[1]) ?? undefined }
   const item = /^\/inbox\/(.+)$/.exec(path)
-  if (item) return { name: 'schedule', id: decodeURIComponent(item[1]) }
+  if (item) {
+    const id = decode(item[1])
+    return id === null ? { name: 'inbox' } : { name: 'schedule', id }
+  }
   return { name: 'today' }
 }
 

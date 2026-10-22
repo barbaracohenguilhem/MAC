@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { sampleDay } from '../state/sampleDay'
-import { currentBlock, endedEarly, firstFreeStart, fmt, nextBlock, realEnd } from './time'
+import { currentBlock, endedEarly, fallbackStart, firstFreeStart, fmt, nextBlock, realEnd } from './time'
 
 const at = (h: number, m: number) => h * 60 + m
 const { blocks } = sampleDay('2026-10-15')
@@ -51,7 +51,20 @@ describe('firstFreeStart', () => {
     expect(firstFreeStart([], at(5, 30), 60)).toBe(at(7, 0))
   })
 
-  it('keeps the block inside the day', () => {
-    expect(firstFreeStart([], at(18, 40), 60)).toBe(at(18, 0))
+  it('has no slot once the block would end after 19:00', () => {
+    expect(firstFreeStart([], at(18, 40), 60)).toBeNull()
+  })
+
+  it('has no slot when the rest of the day is taken, rather than overlapping the last block', () => {
+    const evening = [{ id: 'e', title: 'Evening', start: at(17, 0), dur: 120, color: 'grey' as const }]
+    expect(firstFreeStart(evening, at(16, 30), 60)).toBeNull()
+  })
+})
+
+describe('fallbackStart', () => {
+  it('offers the next quarter hour, kept inside the day', () => {
+    expect(fallbackStart(at(10, 24), 60)).toBe(at(10, 30))
+    expect(fallbackStart(at(18, 40), 60)).toBe(at(18, 0))
+    expect(fallbackStart(at(5, 0), 60)).toBe(at(7, 0))
   })
 })

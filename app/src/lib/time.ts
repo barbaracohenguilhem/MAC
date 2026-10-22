@@ -47,10 +47,10 @@ export function nextBlock(blocks: Block[], now: number): Block | undefined {
 }
 
 /**
- * The first quarter hour from now where a block of `dur` minutes fits between the others,
- * kept inside the day (at 10:24 on the sample day, an hour fits at 11:30).
+ * The first quarter hour from now where a block of `dur` minutes fits between the others and ends by 19:00
+ * (at 10:24 on the sample day, an hour fits at 11:30), or null when no such quarter hour is left today.
  */
-export function firstFreeStart(blocks: Block[], now: number, dur: number): number {
+export function firstFreeStart(blocks: Block[], now: number, dur: number): number | null {
   const latest = DAY_END - dur
   let s = Math.max(DAY_START, Math.ceil(now / STEP) * STEP)
   while (s <= latest) {
@@ -58,5 +58,10 @@ export function firstFreeStart(blocks: Block[], now: number, dur: number): numbe
     if (!hit) return s
     s = Math.ceil(realEnd(hit) / STEP) * STEP
   }
-  return latest
+  return null
+}
+
+/** The start a form offers when nothing is free: the next quarter hour, kept inside the day. */
+export function fallbackStart(now: number, dur: number): number {
+  return clamp(Math.ceil(now / STEP) * STEP, DAY_START, DAY_END - dur)
 }

@@ -20,6 +20,21 @@ export interface Drag {
   preview: Block | null
 }
 
+/** The keyboard's move and resize: `delta` minutes either way, within the same limits as dragging. */
+export function nudge(b: Block, mode: 'move' | 'resize', delta: number): Block {
+  if (mode === 'move') {
+    const start = clamp(b.start + delta, DAY_START, DAY_END - b.dur)
+    const moved: Block = { ...b, start }
+    // an early end travels with its block
+    if (b.endedAt !== undefined) moved.endedAt = b.endedAt + (start - b.start)
+    return moved
+  }
+  const dur = clamp(b.dur + delta, STEP, DAY_END - b.start)
+  // a new length re-plans the block, so a recorded early end no longer applies
+  const { endedAt: _replanned, ...rest } = b
+  return { ...rest, dur }
+}
+
 /** Follows the pointer to `y`. Returns `d` itself while nothing changes. */
 export function step(d: Drag, y: number, newId: () => string): Drag {
   const dy = y - d.y0
