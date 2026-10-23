@@ -1,0 +1,19 @@
+.tb-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 56px var(--space-6) var(--space-2);
+}
+.tb-screen-header--stacked { align-items: flex-start; }
+.tb-screen-header--flush { padding-bottom: 0; }
+
+.tb-screen-header__titles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding-top: var(--space-2);
+}
+
+/* the glyph lines up with the screen edge, not its 44px target */
+.tb-screen-header__close { margin-right: calc(-1 * var(--space-3)); }

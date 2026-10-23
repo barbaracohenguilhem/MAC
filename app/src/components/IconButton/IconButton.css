@@ -1,0 +1,16 @@
+.tb-icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--size-target);
+  height: var(--size-target);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--foreground);
+  cursor: pointer;
+}
+.tb-icon-button--muted { color: var(--muted-foreground); }
+.tb-icon-button--disabled { opacity: 0.35; cursor: default; }

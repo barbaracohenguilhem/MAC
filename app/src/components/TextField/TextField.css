@@ -1,0 +1,12 @@
+.tb-text-field {
+  width: 100%;
+  height: var(--size-control);
+  padding: 0 var(--space-6);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--background);
+  color: var(--foreground);
+  box-shadow: var(--ring-hairline);
+}
+.tb-text-field::placeholder { color: var(--muted-foreground); font-weight: 400; }
+.tb-text-field:focus-visible { box-shadow: var(--ring-focus); }

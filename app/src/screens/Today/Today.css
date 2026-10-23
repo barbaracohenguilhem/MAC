@@ -1,0 +1,28 @@
+.tb-today__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 56px var(--space-6) var(--space-3);
+}
+
+.tb-today__date {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tb-today__weekday {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  line-height: 40px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* the plus glyph lines up with the screen edge, not its 44px target */
+.tb-today__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-right: -13px;
+}

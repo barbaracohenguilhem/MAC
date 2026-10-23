@@ -1,0 +1,18 @@
+.tb-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--size-control);
+  padding: 0 var(--space-6);
+  border: 0;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.tb-button--full { width: 100%; }
+
+.tb-button--primary { background: var(--primary); color: var(--primary-foreground); }
+.tb-button--primary:hover:not(:disabled) { background: var(--primary-hover); }
+.tb-button--primary:disabled { background: var(--secondary); color: var(--muted-foreground); cursor: default; }
+
+.tb-button--outline { background: transparent; color: var(--foreground); border: 1px solid var(--foreground); }

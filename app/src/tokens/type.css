@@ -1,0 +1,9 @@
+/* SceneSnap's app text styles. Satoshi Medium (500) is the default weight, not Regular. */
+.type-subheading { font-size: 20px; line-height: 28px; font-weight: 600; }
+.type-body { font-size: 16px; line-height: 24px; font-weight: 500; }
+.type-body-sm { font-size: 15px; line-height: 24px; font-weight: 500; }
+.type-control { font-size: 14px; line-height: 20px; font-weight: 500; }
+.type-nav { font-size: 13px; line-height: 19.5px; font-weight: 600; }
+.type-caption { font-size: 12px; line-height: 16px; font-weight: 500; }
+
+.text-muted { color: var(--muted-foreground); }
